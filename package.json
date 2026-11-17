@@ -1,0 +1,14 @@
+{
+  "name": "cybershield",
+  "version": "1.0.0",
+  "description": "CyberShield Distributed Intrusion Detection System",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "build": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend",
+    "start": "node backend/src/server.js",
+    "test": "npm test --prefix backend"
+  },
+  "keywords": ["cybersecurity", "ids", "distributed-systems", "soc", "machine-learning"],
+  "author": "CyberShield Team",
+  "license": "MIT"
+}

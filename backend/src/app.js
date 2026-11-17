@@ -60,6 +60,20 @@ app.use('/api/simulation', simulationRoutes);
 app.use('/api/logs', systemLogRoutes);
 app.use('/api/settings', settingsRoutes);
 
+// Serve frontend static build in production or when dist folder exists
+const fs = require('fs');
+const path = require('path');
+const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/socket.io') || req.originalUrl.startsWith('/health')) {
+      return next();
+    }
+    res.sendFile(path.join(frontendDistPath, 'index.html'));
+  });
+}
+
 // Error handlers
 app.use(notFound);
 app.use(errorHandler);
