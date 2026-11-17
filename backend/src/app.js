@@ -24,7 +24,7 @@ const app = express();
 // Security and utility middlewares
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: env.CORS_ORIGIN || '*',
+  origin: true,
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));

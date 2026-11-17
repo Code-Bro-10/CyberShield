@@ -6,7 +6,7 @@ let io = null;
 const initSocketIO = (httpServer, corsOrigin) => {
   io = new Server(httpServer, {
     cors: {
-      origin: corsOrigin || '*',
+      origin: true,
       methods: ['GET', 'POST'],
       credentials: true,
     },
