@@ -4,11 +4,18 @@
   "description": "CyberShield Distributed Intrusion Detection System",
   "main": "backend/src/server.js",
   "scripts": {
-    "build": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend",
+    "build": "npm install --prefix frontend && npm run build --prefix frontend && npm install --prefix backend && node -e \"const fs=require('fs'); try{fs.cpSync('frontend/dist', 'dist', {recursive:true});}catch(e){}\"",
+    "build:frontend": "npm install --prefix frontend && npm run build --prefix frontend && node -e \"const fs=require('fs'); try{fs.cpSync('frontend/dist', 'dist', {recursive:true});}catch(e){}\"",
     "start": "node backend/src/server.js",
     "test": "npm test --prefix backend"
   },
-  "keywords": ["cybersecurity", "ids", "distributed-systems", "soc", "machine-learning"],
+  "keywords": [
+    "cybersecurity",
+    "ids",
+    "distributed-systems",
+    "soc",
+    "machine-learning"
+  ],
   "author": "CyberShield Team",
   "license": "MIT"
 }
