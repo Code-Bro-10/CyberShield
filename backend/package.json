@@ -4,6 +4,7 @@
   "description": "CyberShield Central Backend and Distributed Event Processing Server",
   "main": "src/server.js",
   "scripts": {
+    "build": "node -e \"console.log('CyberShield backend ready')\"",
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "test": "node --test tests/**/*.test.js"

@@ -1,7 +1,20 @@
 import axios from 'axios';
 
+// Sanitize VITE_API_BASE_URL
+const getBaseUrl = () => {
+  const envUrl = import.meta.env.VITE_API_BASE_URL;
+  if (!envUrl) return '/api';
+  const trimmed = envUrl.trim().replace(/\/+$/, '');
+  // If user provided origin like https://cybershield-b7xy.onrender.com
+  // ensure /api is attached if not already ending in /api
+  if (!trimmed.endsWith('/api') && trimmed.startsWith('http')) {
+    return `${trimmed}/api`;
+  }
+  return trimmed;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
+  baseURL: getBaseUrl(),
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',

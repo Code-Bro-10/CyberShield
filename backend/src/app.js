@@ -36,8 +36,10 @@ if (env.NODE_ENV !== 'test') {
 
 // Global API rate limit
 app.use('/api', apiLimiter);
+app.use('/auth', apiLimiter);
 
-// Health check endpoint
+// Root & Health check endpoints
+app.head('/', (req, res) => res.status(200).end());
 app.get('/health', (req, res) => {
   res.json({
     status: 'HEALTHY',
@@ -47,27 +49,81 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Mount modular REST routes
-app.use('/api/auth', authRoutes);
-app.use('/api/nodes', nodeRoutes);
-app.use('/api/events', eventRoutes);
-app.use('/api/alerts', alertRoutes);
-app.use('/api/incidents', incidentRoutes);
-app.use('/api/threat-intelligence', threatIntelRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/ml', mlRoutes);
-app.use('/api/simulation', simulationRoutes);
-app.use('/api/logs', systemLogRoutes);
-app.use('/api/settings', settingsRoutes);
-
-// Serve frontend static build in production or when dist folder exists
+// Root landing page
 const fs = require('fs');
 const path = require('path');
 const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
+
+app.get('/', (req, res, next) => {
+  if (fs.existsSync(path.join(frontendDistPath, 'index.html'))) {
+    return res.sendFile(path.join(frontendDistPath, 'index.html'));
+  }
+  return res.json({
+    status: 'HEALTHY',
+    system: 'CyberShield Distributed Central SOC API',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+    message: 'Backend is active and accepting distributed telemetry.',
+    endpoints: {
+      health: '/health',
+      auth: '/api/auth (or /auth)',
+      nodes: '/api/nodes (or /nodes)',
+      events: '/api/events (or /events)',
+      alerts: '/api/alerts (or /alerts)',
+      incidents: '/api/incidents (or /incidents)',
+      threatIntel: '/api/threat-intelligence',
+      analytics: '/api/analytics',
+      ml: '/api/ml',
+      simulation: '/api/simulation',
+      logs: '/api/logs',
+    }
+  });
+});
+
+// Mount modular REST routes (support both /api/* and direct /* prefixes)
+app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
+
+app.use('/api/nodes', nodeRoutes);
+app.use('/nodes', nodeRoutes);
+
+app.use('/api/events', eventRoutes);
+app.use('/events', eventRoutes);
+
+app.use('/api/alerts', alertRoutes);
+app.use('/alerts', alertRoutes);
+
+app.use('/api/incidents', incidentRoutes);
+app.use('/incidents', incidentRoutes);
+
+app.use('/api/threat-intelligence', threatIntelRoutes);
+app.use('/threat-intelligence', threatIntelRoutes);
+
+app.use('/api/analytics', analyticsRoutes);
+app.use('/analytics', analyticsRoutes);
+
+app.use('/api/ml', mlRoutes);
+app.use('/ml', mlRoutes);
+
+app.use('/api/simulation', simulationRoutes);
+app.use('/simulation', simulationRoutes);
+
+app.use('/api/logs', systemLogRoutes);
+app.use('/logs', systemLogRoutes);
+
+app.use('/api/settings', settingsRoutes);
+app.use('/settings', settingsRoutes);
+
+// Serve frontend static build in production or when dist folder exists
 if (fs.existsSync(frontendDistPath)) {
   app.use(express.static(frontendDistPath));
   app.get('*', (req, res, next) => {
-    if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/socket.io') || req.originalUrl.startsWith('/health')) {
+    if (
+      req.originalUrl.startsWith('/api') ||
+      req.originalUrl.startsWith('/auth') ||
+      req.originalUrl.startsWith('/socket.io') ||
+      req.originalUrl.startsWith('/health')
+    ) {
       return next();
     }
     res.sendFile(path.join(frontendDistPath, 'index.html'));
