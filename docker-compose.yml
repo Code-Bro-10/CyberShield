@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: cybershield-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=cybershield
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: cybershield-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cybershield-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/cybershield
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=cybershield_super_secret_jwt_key_2026_soc_enterprise
+      - AGENT_SHARED_SECRET=cybershield-agent-key-secret-999
+      - ML_SERVICE_URL=http://ml-engine:5001
+      - CORS_ORIGIN=http://localhost:5173
+    depends_on:
+      - mongodb
+      - redis
+
+  ml-engine:
+    build:
+      context: ./detection-engine
+      dockerfile: Dockerfile
+    container_name: cybershield-ml-engine
+    restart: always
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cybershield-frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+volumes:
+  mongo_data:
+  redis_data:

@@ -1,0 +1,40 @@
+{
+  "model_name": "Isolation Forest Network Anomaly Detector",
+  "algorithm": "IsolationForest",
+  "trained_at": "2026-11-17T14:36:59.306435+00:00",
+  "dataset": "CIC-IDS2017 Sample Flow Logs",
+  "total_samples": 1500,
+  "train_samples": 1050,
+  "test_samples": 450,
+  "features": [
+    "destination_port",
+    "flow_duration",
+    "total_fwd_packets",
+    "total_bwd_packets",
+    "flow_bytes_per_sec",
+    "flow_packets_per_sec",
+    "packet_length_mean",
+    "packet_length_std",
+    "syn_flag_count",
+    "ack_flag_count"
+  ],
+  "hyperparameters": {
+    "n_estimators": 100,
+    "contamination": 0.3,
+    "max_samples": "auto",
+    "random_state": 42
+  },
+  "evaluation": {
+    "accuracy": 0.9444,
+    "precision": 0.8873,
+    "recall": 0.9333,
+    "f1_score": 0.9097,
+    "confusion_matrix": {
+      "true_negative": 299,
+      "false_positive": 16,
+      "false_negative": 9,
+      "true_positive": 126
+    }
+  },
+  "status": "READY"
+}
