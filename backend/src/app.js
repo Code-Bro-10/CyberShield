@@ -14,6 +14,7 @@ const mlRoutes = require('./routes/mlRoutes');
 const simulationRoutes = require('./routes/simulationRoutes');
 const systemLogRoutes = require('./routes/systemLogRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const securityDefenseRoutes = require('./routes/securityDefenseRoutes');
 
 const { notFound, errorHandler } = require('./middleware/errorHandler');
 const { apiLimiter } = require('./middleware/rateLimiter');
@@ -73,6 +74,7 @@ app.get('/', (req, res, next) => {
       incidents: '/api/incidents (or /incidents)',
       threatIntel: '/api/threat-intelligence',
       analytics: '/api/analytics',
+      security: '/api/security (or /security)',
       ml: '/api/ml',
       simulation: '/api/simulation',
       logs: '/api/logs',
@@ -114,6 +116,9 @@ app.use('/logs', systemLogRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/settings', settingsRoutes);
 
+app.use('/api/security', securityDefenseRoutes);
+app.use('/security', securityDefenseRoutes);
+
 // Serve frontend static build in production or when dist folder exists
 if (fs.existsSync(frontendDistPath)) {
   app.use(express.static(frontendDistPath));
@@ -121,6 +126,7 @@ if (fs.existsSync(frontendDistPath)) {
     if (
       req.originalUrl.startsWith('/api') ||
       req.originalUrl.startsWith('/auth') ||
+      req.originalUrl.startsWith('/security') ||
       req.originalUrl.startsWith('/socket.io') ||
       req.originalUrl.startsWith('/health')
     ) {

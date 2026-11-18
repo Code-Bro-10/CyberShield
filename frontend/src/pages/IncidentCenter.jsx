@@ -9,6 +9,7 @@ import {
   User,
   MessageSquare,
   ShieldAlert,
+  ShieldCheck,
   Send,
   Eye,
 } from 'lucide-react';
@@ -21,7 +22,7 @@ import { TableSkeleton } from '../components/LoadingSkeleton';
 import { EmptyState } from '../components/EmptyState';
 import { formatDateTime, formatTimeAgo } from '../utils/formatters';
 
-export const IncidentCenter = () => {
+export const IncidentCenter = ({ onOpenDefenseModal }) => {
   const { socket } = useSocket();
   const { user } = useAuth();
   const [incidents, setIncidents] = useState([]);
@@ -372,9 +373,17 @@ export const IncidentCenter = () => {
                           {al.description}
                         </p>
                       </div>
-                      <div className="text-right text-[11px] text-slate-400 font-mono">
-                        <div>Source: <span className="text-amber-300">{al.sourceIP}</span></div>
+                      <div className="text-right text-[11px] text-slate-400 font-mono shrink-0 ml-4 flex flex-col items-end gap-1.5">
+                        <div>Source: <span className="text-amber-300 font-bold">{al.sourceIP}</span></div>
                         <div>Node: <span className="text-cyan-400">{al.nodeId}</span></div>
+                        <button
+                          type="button"
+                          onClick={() => onOpenDefenseModal && onOpenDefenseModal(al)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-[10px] font-mono font-medium transition-colors cursor-pointer mt-1"
+                        >
+                          <ShieldCheck className="w-3 h-3" />
+                          Apply Defense
+                        </button>
                       </div>
                     </div>
                   ))

@@ -11,6 +11,7 @@ import {
   Layers,
   Clock,
   Eye,
+  ShieldCheck,
 } from 'lucide-react';
 import api from '../services/api';
 import { useSocket } from '../context/SocketContext';
@@ -20,7 +21,7 @@ import { TableSkeleton } from '../components/LoadingSkeleton';
 import { EmptyState } from '../components/EmptyState';
 import { formatDateTime, formatTimeAgo } from '../utils/formatters';
 
-export const LiveMonitoring = () => {
+export const LiveMonitoring = ({ onOpenDefenseModal }) => {
   const { socket } = useSocket();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -257,15 +258,36 @@ export const LiveMonitoring = () => {
                       <SeverityBadge severity={evt.severity} />
                     </td>
                     <td className="py-3 px-4 text-center">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedEvent(evt);
-                        }}
-                        className="p-1 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onOpenDefenseModal) {
+                              onOpenDefenseModal({
+                                category: evt.eventType,
+                                sourceIP: evt.sourceIP,
+                                nodeId: evt.nodeId,
+                                severity: evt.severity,
+                                description: `Intrusion event [${evt.eventType}] targeting ${evt.destinationIP}:${evt.destinationPort || 'any'}`,
+                              });
+                            }
+                          }}
+                          className="p-1 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors cursor-pointer"
+                          title="Deploy Security Defense"
+                        >
+                          <ShieldCheck className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedEvent(evt);
+                          }}
+                          className="p-1 text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 rounded transition-colors cursor-pointer"
+                          title="Inspect raw event"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -338,6 +360,31 @@ export const LiveMonitoring = () => {
                   rawPayload: selectedEvent.rawPayload,
                 }, null, 2)}
               </pre>
+            </div>
+
+            {/* Defense Action Footer */}
+            <div className="pt-3 border-t border-[#1e293b] flex items-center justify-between">
+              <span className="text-[11px] font-mono text-slate-400">
+                Source IP: <strong className="text-cyan-400">{selectedEvent.sourceIP}</strong>
+              </span>
+              <button
+                onClick={() => {
+                  if (onOpenDefenseModal) {
+                    onOpenDefenseModal({
+                      category: selectedEvent.eventType,
+                      sourceIP: selectedEvent.sourceIP,
+                      nodeId: selectedEvent.nodeId,
+                      severity: selectedEvent.severity,
+                      description: `Real-time intrusion event [${selectedEvent.eventType}] detected targeting ${selectedEvent.destinationIP}:${selectedEvent.destinationPort || 'any'}`,
+                    });
+                  }
+                  setSelectedEvent(null);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-mono font-medium shadow-md shadow-red-950/20 transition-all cursor-pointer"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Deploy Security Defense
+              </button>
             </div>
           </div>
         )}

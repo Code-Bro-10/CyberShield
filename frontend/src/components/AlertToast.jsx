@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSocket } from '../context/SocketContext';
 import { SeverityBadge } from './Badge';
-import { ShieldAlert, X, CheckCircle, ExternalLink } from 'lucide-react';
+import { ShieldAlert, ShieldCheck, X, CheckCircle, ExternalLink } from 'lucide-react';
 import api from '../services/api';
 
-export const AlertToastContainer = () => {
+export const AlertToastContainer = ({ onOpenDefenseModal }) => {
   const { alertToasts, dismissToast } = useSocket();
 
   if (!alertToasts || alertToasts.length === 0) return null;
@@ -49,11 +49,22 @@ export const AlertToastContainer = () => {
             <span>Node: <strong className="text-cyan-400 font-mono">{toast.nodeId}</strong></span>
             <div className="flex items-center gap-2">
               <button
+                onClick={() => {
+                  if (onOpenDefenseModal) onOpenDefenseModal(toast);
+                  dismissToast(toast.alertId);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 rounded text-[11px] font-mono font-medium transition-colors cursor-pointer"
+                title="Open automated security defense options"
+              >
+                <ShieldCheck className="w-3 h-3" />
+                Defend
+              </button>
+              <button
                 onClick={() => handleAcknowledge(toast.alertId)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded text-[11px] transition-colors"
+                className="inline-flex items-center gap-1 px-2.5 py-1 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded text-[11px] transition-colors cursor-pointer"
               >
                 <CheckCircle className="w-3 h-3" />
-                Acknowledge
+                Ack
               </button>
             </div>
           </div>

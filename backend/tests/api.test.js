@@ -261,3 +261,61 @@ test('10. SOC Analytics Overview Data', async () => {
   assert.ok(statsRes.body.stats.totalNodes >= 3);
   assert.ok(statsRes.body.stats.totalEvents >= 1);
 });
+
+test('11. Active Security Defenses, Playbooks & Incident Mitigation', async () => {
+  // 1. Fetch playbooks
+  const playbooksRes = await request(app)
+    .get('/api/security/playbooks')
+    .set('Authorization', `Bearer ${authToken}`);
+
+  assert.strictEqual(playbooksRes.status, 200);
+  assert.strictEqual(playbooksRes.body.success, true);
+  assert.ok(playbooksRes.body.playbooks.length >= 6);
+
+  // 2. Apply defense for an attacking IP
+  const applyRes = await request(app)
+    .post('/api/security/apply')
+    .set('Authorization', `Bearer ${authToken}`)
+    .send({
+      category: 'Brute Force',
+      target: '198.51.100.99',
+      defenseType: 'BLOCK_IP',
+      actionTaken: 'Perimeter IP Drop (24h) deployed for brute force attempt',
+      nodeId: 'test-node-testrunner',
+    });
+
+  assert.strictEqual(applyRes.status, 201);
+  assert.strictEqual(applyRes.body.success, true);
+  assert.ok(applyRes.body.defense.defenseId);
+  assert.strictEqual(applyRes.body.defense.status, 'Active');
+  assert.ok(applyRes.body.defense.firewallRule.iptables);
+  assert.ok(applyRes.body.defense.firewallRule.powershell);
+
+  const defenseId = applyRes.body.defense.defenseId;
+
+  // 3. Query defenses
+  const defensesRes = await request(app)
+    .get('/api/security/defenses')
+    .set('Authorization', `Bearer ${authToken}`);
+
+  assert.strictEqual(defensesRes.status, 200);
+  assert.ok(defensesRes.body.defenses.length >= 1);
+  assert.ok(defensesRes.body.stats.activeCount >= 1);
+
+  // 4. Check target defense status
+  const targetRes = await request(app)
+    .get('/api/security/target/198.51.100.99')
+    .set('Authorization', `Bearer ${authToken}`);
+
+  assert.strictEqual(targetRes.status, 200);
+  assert.strictEqual(targetRes.body.isDefended, true);
+
+  // 5. Revoke defense
+  const revokeRes = await request(app)
+    .delete(`/api/security/defenses/${defenseId}`)
+    .set('Authorization', `Bearer ${authToken}`);
+
+  assert.strictEqual(revokeRes.status, 200);
+  assert.strictEqual(revokeRes.body.success, true);
+  assert.strictEqual(revokeRes.body.defense.status, 'Revoked');
+});

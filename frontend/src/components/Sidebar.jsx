@@ -24,6 +24,7 @@ export const Sidebar = ({ activeTab, onSelectTab }) => {
     { id: 'threat-intel', label: 'Threat Intelligence', icon: Crosshair },
     { id: 'analytics', label: 'Attack Analytics', icon: BarChart3 },
     { id: 'incidents', label: 'Incident Center', icon: AlertTriangle, badge: unreadAlertCount },
+    { id: 'security', label: 'Active Defense (SOAR)', icon: ShieldCheck, highlight: true },
     { id: 'ml', label: 'ML Detection', icon: BrainCircuit },
     { id: 'simulation', label: 'Simulation & Demo', icon: Flame, highlight: true },
     { id: 'logs', label: 'System Logs', icon: Terminal },

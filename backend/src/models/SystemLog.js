@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const systemLogSchema = new mongoose.Schema({
   logType: {
     type: String,
-    enum: ['NODE_CONNECTION', 'SERVER_INFO', 'AUTH_EVENT', 'PROCESSING_FAILURE', 'REDIS_MESSAGE', 'DETECTION_TRIGGER', 'SIMULATION_EVENT'],
+    enum: ['NODE_CONNECTION', 'SERVER_INFO', 'AUTH_EVENT', 'PROCESSING_FAILURE', 'REDIS_MESSAGE', 'DETECTION_TRIGGER', 'SIMULATION_EVENT', 'CONFIG_CHANGE', 'SECURITY_DEFENSE'],
     required: true,
     index: true,
   },

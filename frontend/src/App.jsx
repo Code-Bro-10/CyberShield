@@ -15,6 +15,8 @@ import { MlDetection } from './pages/MlDetection';
 import { SimulationPanel } from './pages/SimulationPanel';
 import { SystemLogs } from './pages/SystemLogs';
 import { Settings } from './pages/Settings';
+import { ActiveDefense } from './pages/ActiveDefense';
+import { SecurityResponseModal } from './components/SecurityResponseModal';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 
@@ -25,6 +27,7 @@ const PAGE_TITLES = {
   'threat-intel': 'Threat Intelligence & IOC Sharing',
   analytics: 'Attack Telemetry Analytics',
   incidents: 'Incident Response Center',
+  security: 'Active Defenses & Incident Countermeasures (SOAR)',
   ml: 'Machine Learning Anomaly Detection',
   simulation: 'Attack Simulation & Demonstration Panel',
   logs: 'System Logs & Message Stream',
@@ -35,6 +38,7 @@ const DashboardContent = () => {
   const { isAuthenticated, loading } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [authView, setAuthView] = useState('login'); // 'login' | 'register'
+  const [defenseTargetAlert, setDefenseTargetAlert] = useState(null);
 
   if (loading) {
     return (
@@ -58,9 +62,9 @@ const DashboardContent = () => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case 'overview':
-        return <Overview onNavigate={setActiveTab} />;
+        return <Overview onNavigate={setActiveTab} onOpenDefenseModal={(alert) => setDefenseTargetAlert(alert)} />;
       case 'monitoring':
-        return <LiveMonitoring />;
+        return <LiveMonitoring onOpenDefenseModal={(alert) => setDefenseTargetAlert(alert)} />;
       case 'nodes':
         return <NetworkNodes />;
       case 'threat-intel':
@@ -68,7 +72,9 @@ const DashboardContent = () => {
       case 'analytics':
         return <AttackAnalytics />;
       case 'incidents':
-        return <IncidentCenter />;
+        return <IncidentCenter onOpenDefenseModal={(alert) => setDefenseTargetAlert(alert)} />;
+      case 'security':
+        return <ActiveDefense onOpenDefenseModal={(alert) => setDefenseTargetAlert(alert)} />;
       case 'ml':
         return <MlDetection />;
       case 'simulation':
@@ -99,7 +105,17 @@ const DashboardContent = () => {
       </div>
 
       {/* Real-time Alert Toast Notifications */}
-      <AlertToastContainer />
+      <AlertToastContainer onOpenDefenseModal={(alert) => setDefenseTargetAlert(alert)} />
+
+      {/* Active Security Defense SOAR Modal */}
+      <SecurityResponseModal
+        isOpen={!!defenseTargetAlert}
+        alert={defenseTargetAlert}
+        onClose={() => setDefenseTargetAlert(null)}
+        onDefenseApplied={(def, alertId) => {
+          // Defense applied successfully
+        }}
+      />
     </div>
   );
 };

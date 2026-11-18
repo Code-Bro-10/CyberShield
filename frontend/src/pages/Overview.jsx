@@ -8,6 +8,7 @@ import {
   Flame,
   ArrowUpRight,
   RefreshCw,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -37,7 +38,7 @@ const SEVERITY_COLORS = {
   Informational: '#64748b',
 };
 
-export const Overview = ({ onNavigate }) => {
+export const Overview = ({ onNavigate, onOpenDefenseModal }) => {
   const { socket } = useSocket();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
@@ -321,7 +322,8 @@ export const Overview = ({ onNavigate }) => {
                   <th className="py-2.5 px-3">Source IP</th>
                   <th className="py-2.5 px-3">Target</th>
                   <th className="py-2.5 px-3">Severity</th>
-                  <th className="py-2.5 px-3 text-right">Time</th>
+                  <th className="py-2.5 px-3">Time</th>
+                  <th className="py-2.5 px-3 text-right">Defend</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#1e293b]/50">
@@ -339,14 +341,34 @@ export const Overview = ({ onNavigate }) => {
                       <td className="py-2.5 px-3">
                         <SeverityBadge severity={evt.severity} />
                       </td>
-                      <td className="py-2.5 px-3 text-right text-slate-400 text-[11px]">
+                      <td className="py-2.5 px-3 text-slate-400 text-[11px]">
                         {formatTimeAgo(evt.timestamp)}
+                      </td>
+                      <td className="py-2.5 px-3 text-right">
+                        <button
+                          onClick={() => {
+                            if (onOpenDefenseModal) {
+                              onOpenDefenseModal({
+                                category: evt.eventType,
+                                sourceIP: evt.sourceIP,
+                                nodeId: evt.nodeId,
+                                severity: evt.severity,
+                                description: `Security event [${evt.eventType}] targeting ${evt.destinationIP}:${evt.destinationPort || 'any'}`,
+                              });
+                            }
+                          }}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] font-mono transition-colors cursor-pointer"
+                          title="Deploy Security Defense"
+                        >
+                          <ShieldCheck className="w-3 h-3" />
+                          Defend
+                        </button>
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={6} className="py-8 text-center text-slate-500 font-mono">
+                    <td colSpan={7} className="py-8 text-center text-slate-500 font-mono">
                       No events in buffer. Run the simulator or connect an agent to see real-time streaming.
                     </td>
                   </tr>
